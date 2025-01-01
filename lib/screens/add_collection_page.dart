@@ -51,6 +51,81 @@ class _AddCollectionPageState extends State<AddCollectionPage> {
     return null;
   }
 
+  // void submitForm() async {
+  //   if (formKey.currentState!.validate()) {
+  //     final double? amount = double.tryParse(amountController.text);
+  //     if (amount == null) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Amount must be a valid number')),
+  //       );
+  //       return;
+  //     }
+
+  //     if (selectedDate == null) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Please select a date')),
+  //       );
+  //       return;
+  //     }
+
+  //     final box = await Hive.openBox<Collection>('collections');
+  //     final existingCollection = box.values
+  //         .where((collection) =>
+  //             collection.name == nameController.text.trim() &&
+  //             collection.date == DateFormat('yyyy-MM-dd').format(selectedDate!))
+  //         .toList();
+
+  //     if (existingCollection.isNotEmpty) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('This collection already exists')),
+  //       );
+  //       return;
+  //     }
+
+  //     final collectionData = Collection(
+  //       name: nameController.text.trim(),
+  //       amount: amount,
+  //       qp: qpController.text.trim().isNotEmpty
+  //           ? qpController.text.trim()
+  //           : 'N/A',
+  //       uq: uqController.text.trim().isNotEmpty
+  //           ? uqController.text.trim()
+  //           : 'N/A',
+  //       sp: spController.text.trim().isNotEmpty
+  //           ? spController.text.trim()
+  //           : 'N/A',
+  //       nb: nbController.text.trim().isNotEmpty
+  //           ? nbController.text.trim()
+  //           : 'N/A',
+  //       rt: rtController.text.trim().isNotEmpty
+  //           ? rtController.text.trim()
+  //           : 'N/A',
+  //       rv: rvController.text.trim().isNotEmpty
+  //           ? rvController.text.trim()
+  //           : 'N/A',
+  //       date: DateFormat('yyyy-MM-dd').format(selectedDate!),
+  //     );
+
+  //     await box.add(collectionData);
+
+  //     formKey.currentState!.reset();
+  //     nameController.clear();
+  //     amountController.clear();
+  //     qpController.clear();
+  //     uqController.clear();
+  //     spController.clear();
+  //     nbController.clear();
+  //     rtController.clear();
+  //     rvController.clear();
+  //     selectedDate = null;
+
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Collection added successfully!')),
+  //     );
+
+  //     Navigator.pop(context);
+  //   }
+  // }
   void submitForm() async {
     if (formKey.currentState!.validate()) {
       final double? amount = double.tryParse(amountController.text);
@@ -68,7 +143,6 @@ class _AddCollectionPageState extends State<AddCollectionPage> {
         return;
       }
 
-      // Open the Hive box to check for duplicates
       final box = await Hive.openBox<Collection>('collections');
       final existingCollection = box.values
           .where((collection) =>
@@ -83,7 +157,6 @@ class _AddCollectionPageState extends State<AddCollectionPage> {
         return;
       }
 
-      // Create the Collection object
       final collectionData = Collection(
         name: nameController.text.trim(),
         amount: amount,
@@ -108,10 +181,12 @@ class _AddCollectionPageState extends State<AddCollectionPage> {
         date: DateFormat('yyyy-MM-dd').format(selectedDate!),
       );
 
-      // Save the Collection object to Hive
-      await box.add(collectionData); // Adding the collection
+      await box.add(collectionData);
 
-      // Reset form
+      // Call the onAddCollection callback to update the parent state
+      widget.onAddCollection(collectionData);
+
+      // Reset form fields
       formKey.currentState!.reset();
       nameController.clear();
       amountController.clear();

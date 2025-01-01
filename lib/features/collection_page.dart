@@ -6,8 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'dart:io';
-import '../screens/net_collections_page.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import 'net_collections_page.dart';
 
 class CollectionPage extends StatefulWidget {
   const CollectionPage({super.key});
@@ -45,21 +46,6 @@ class _CollectionPageState extends State<CollectionPage> {
     _loadCollections();
   }
 
-  void _loadCollections() {
-    setState(() {
-      collections = collectionBox.values.toList();
-      filteredCollections = collections.where((collection) {
-        return collection.name!
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()) ||
-            collection.date!.contains(searchQuery);
-      }).toList();
-
-      totalCollectionsAmount =
-          collections.fold(0.0, (sum, item) => sum + (item.amount ?? 0.0));
-    });
-  }
-
   Future<void> _deleteCollection(int index) async {
     await collectionBox.deleteAt(index);
     _loadCollections();
@@ -71,7 +57,6 @@ class _CollectionPageState extends State<CollectionPage> {
   }
 
   Future<void> _generatePDF() async {
-    // Request permissions first
     await _requestPermissions();
 
     final pdf = pw.Document();
@@ -348,6 +333,7 @@ class _CollectionPageState extends State<CollectionPage> {
               builder: (context) =>
                   AddCollectionPage(onAddCollection: (newCollection) {
                 _loadCollections();
+                _addNewCollection(newCollection);
               }),
             ),
           );
@@ -356,5 +342,28 @@ class _CollectionPageState extends State<CollectionPage> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  void _addNewCollection(Collection newCollection) {
+    setState(() {
+      collections.add(newCollection);
+      filteredCollections.add(newCollection);
+      totalCollectionsAmount += newCollection.amount ?? 0.0;
+    });
+  }
+
+  void _loadCollections() {
+    setState(() {
+      collections = collectionBox.values.toList();
+      filteredCollections = collections.where((collection) {
+        return collection.name!
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase()) ||
+            collection.date!.contains(searchQuery);
+      }).toList();
+
+      totalCollectionsAmount =
+          collections.fold(0.0, (sum, item) => sum + (item.amount ?? 0.0));
+    });
   }
 }
