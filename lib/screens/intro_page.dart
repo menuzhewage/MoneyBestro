@@ -1,28 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/models/section_page.dart';
+import 'package:flutter_application_1/features/collection_page.dart';
+import 'package:flutter_application_1/features/my_drawer.dart';
+import 'package:flutter_application_1/screens/notes_page.dart';
+import 'package:flutter_application_1/screens/transfer_page.dart';
+
+import '../utils/auth/auth_service.dart';
 
 class IntroPage extends StatelessWidget {
   final String username;
 
-  const IntroPage({super.key, required this.username});
+  IntroPage({Key? key})
+      : username = AuthService().getCurrentUser()!.email.toString(),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(Icons.person),
         backgroundColor: Colors.deepOrange,
-        title: Text(
-          'MoneyBestro',
-          style: TextStyle(
-            fontFamily: 'roboto',
-            letterSpacing: 3.0,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: const Color.fromARGB(255, 255, 255, 255),
+        title: Center(
+          child: Text(
+            'MoneyBestro',
+            style: TextStyle(
+              fontFamily: 'roboto',
+              letterSpacing: 3.0,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: const Color.fromARGB(255, 255, 255, 255),
+            ),
           ),
         ),
       ),
+      drawer: MyDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -45,8 +54,7 @@ class IntroPage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => SectionPage(title: 'Collections')),
+                  MaterialPageRoute(builder: (context) => CollectionPage()),
                 );
               },
               child: sectionWidget('Collections', Colors.greenAccent),
@@ -56,8 +64,7 @@ class IntroPage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => SectionPage(title: 'Transactions')),
+                  MaterialPageRoute(builder: (context) => TransferPage()),
                 );
               },
               child: sectionWidget(
@@ -68,8 +75,7 @@ class IntroPage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => SectionPage(title: 'Notes')),
+                  MaterialPageRoute(builder: (context) => NotesPage()),
                 );
               },
               child: sectionWidget(

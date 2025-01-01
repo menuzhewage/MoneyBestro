@@ -68,10 +68,25 @@ class _AddCollectionPageState extends State<AddCollectionPage> {
         return;
       }
 
+      // Open the Hive box to check for duplicates
+      final box = await Hive.openBox<Collection>('collections');
+      final existingCollection = box.values
+          .where((collection) =>
+              collection.name == nameController.text.trim() &&
+              collection.date == DateFormat('yyyy-MM-dd').format(selectedDate!))
+          .toList();
+
+      if (existingCollection.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('This collection already exists')),
+        );
+        return;
+      }
+
       // Create the Collection object
       final collectionData = Collection(
         name: nameController.text.trim(),
-        amount: amount ?? 0.0,
+        amount: amount,
         qp: qpController.text.trim().isNotEmpty
             ? qpController.text.trim()
             : 'N/A',
@@ -94,11 +109,7 @@ class _AddCollectionPageState extends State<AddCollectionPage> {
       );
 
       // Save the Collection object to Hive
-      final box = await Hive.openBox<Collection>('collections');
       await box.add(collectionData); // Adding the collection
-
-      widget.onAddCollection(
-          collectionData); // Pass the Collection object instead of a Map
 
       // Reset form
       formKey.currentState!.reset();

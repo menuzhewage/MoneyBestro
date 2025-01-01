@@ -1,150 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/screens/intro_page.dart';
-import 'package:flutter_application_1/screens/register.dart';
+import '../utils/auth/auth_service.dart';
+import '../utils/my_button.dart';
+import '../utils/my_textfield.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginPage extends StatelessWidget {
+  final TextEditingController _emailEditingController = TextEditingController();
+  final TextEditingController _passwordEditingController =
+      TextEditingController();
 
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
+  final void Function()? onTap;
 
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController usernameController = TextEditingController();
+  LoginPage({
+    super.key,
+    required this.onTap,
+  });
 
-  final TextEditingController passwordController = TextEditingController();
+  void login(BuildContext context) async {
+    final authService = AuthService();
 
-  String registeredUsername = '';
-  String registeredPassword = '';
-
-  void login() {
-    if (usernameController.text == registeredUsername &&
-        passwordController.text == registeredPassword) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => IntroPage(username: registeredUsername)),
-      );
-    } else {
+    try {
+      await authService.signInWithEmailPassword(
+          _emailEditingController.text, _passwordEditingController.text);
+    } catch (e) {
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Login Failed'),
-          content: Text('Invalid credentials'),
-          actions: [
-            TextButton(
-              child: Text('Okay'),
-              onPressed: () => Navigator.pop(context),
-            )
-          ],
+          title: Text(e.toString()),
         ),
       );
     }
   }
 
-  void navigateToRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Register(onRegister: (username, password) {
-          setState(() {
-            registeredUsername = username;
-            registeredPassword = password;
-          });
-        }),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
-        title: const Center(
-          child: Text(
-            "Login Page",
-            style: TextStyle(
-                fontSize: 24,
-                color: Colors.amber,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'poppins'),
-          ),
-        ),
-      ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 20,
-            children: [
-              const Text('Welcome Back'),
-              TextField(
-                controller: usernameController,
-                decoration: const InputDecoration(
-                  hintText: 'Username',
-                  border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                ),
-              ),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  hintText: 'Password',
-                  border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                ),
-              ),
-              SizedBox(
-                width: 200,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepOrange,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 12.0),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: const BorderSide(
-                              color: Colors.grey, width: 1.0))),
-                  child: const Text(
-                    'login',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontFamily: 'poppins'),
-                  ),
-                  onPressed: login,
-                ),
-              ),
-              const Text(
-                'Don\'t have an account?',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 26, 153, 188),
-                ),
-              ),
-              GestureDetector(
-                onTap: navigateToRegister,
-                child: const Text(
-                  'Register here',
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.message,
+              size: 60,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            Text(
+              "Welcome back, you're been missed!",
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary, fontSize: 16),
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            MyTextfield(
+              hintText: 'Email',
+              obscureText: false,
+              controller: _emailEditingController,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            MyTextfield(
+              hintText: 'Password',
+              obscureText: true,
+              controller: _passwordEditingController,
+            ),
+            const SizedBox(
+              height: 25,
+            ),
+            MyButton(
+              text: 'Login',
+              onTap: () => login(context),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "Not a member? Please ",
                   style: TextStyle(
-                    color: Colors.deepOrange,
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              )
-            ],
-          ),
+                GestureDetector(
+                  onTap: onTap,
+                  child: const Text(
+                    "register now",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 52, 52, 52),
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
         ),
       ),
     );
